@@ -89,42 +89,10 @@ function renderCircles(circlesGroup, newXScale, chosenXAxis) {
   return circlesGroup;
 }
 
-// // function used for updating circles group with new tooltip
-// function updateToolTip(chosenXAxis, circlesGroup) {
-//
-//   var label;
-//
-//   if (chosenXAxis === "hair_length") {
-//     label = "Hair Length:";
-//   }
-//   else {
-//     label = "# of Albums:";
-//   }
-//
-//   var toolTip = d3.tip()
-//     .attr("class", "tooltip")
-//     .offset([80, -60])
-//     .html(function(d) {
-//       return (`${d.rockband}<br>${label} ${d[chosenXAxis]}`);
-//     });
-//
-//   circlesGroup.call(toolTip);
-//
-//   circlesGroup.on("mouseover", function(data) {
-//     toolTip.show(data);
-//   })
-//     // onmouseout event
-//     .on("mouseout", function(data, index) {
-//       toolTip.hide(data);
-//     });
-//
-//   return circlesGroup;
-// }
-
 // Retrieve data from the CSV file and execute everything below
 d3.csv("assets/data/data.csv").then(function(data, err) {
   if (err) throw err;
-  console.log(data.abbr);
+
   // parse data
   data.forEach(function(data) {
     data.poverty = +data.poverty;
@@ -154,44 +122,39 @@ d3.csv("assets/data/data.csv").then(function(data, err) {
     .call(leftAxis);
 
   // append initial circles
-  var circlesGroup = chartGroup.selectAll("circle")
+  var circlesGroup = chartGroup.selectAll("g circlesGroup")
     .data(data)
     .enter()
     .append("circle")
     .attr("cx", d => xLinearScale(d[chosenXAxis]))
     .attr("cy", d => yLinearScale(d.healthcare))
     .attr("r", 10)
-    .attr("fill", "cyan")
+    .attr("fill", "Blue Gray")
     .attr("opacity", ".5");
 
-    var texts = chartGroup.selectAll("text")
+    // creates abbr labels inside the circles
+    var texts = chartGroup.selectAll("g texts")
       .data(data)
-      .enter()
-      .append('text')
+      .enter();
+    texts.append('text')
       .attr("x", d => xLinearScale(d[chosenXAxis]) - 6)
       .attr("y", d => yLinearScale(d.healthcare))
       .attr('alignment-baseline', 'middle')
       .style('font-size', 8 + 'px')
       .attr('fill', 'white')
-      .text(d => d.abbr)
+      .text(d => d.abbr);
 
   // Create group for two x-axis labels
   var labelsGroup = chartGroup.append("g")
     .attr("transform", `translate(${width / 2}, ${height + 20})`);
-  //
-  // var hairLengthLabel = labelsGroup.append("text")
-  //   .attr("x", 0)
-  //   .attr("y", 20)
-  //   .attr("value", "hair_length") // value to grab for event listener
-  //   .classed("active", true)
-  //   .text("Hair Metal Ban Hair Length (inches)");
-  //
-  // var albumsLabel = labelsGroup.append("text")
-  //   .attr("x", 0)
-  //   .attr("y", 40)
-  //   .attr("value", "num_albums") // value to grab for event listener
-  //   .classed("inactive", true)
-  //   .text("# of Albums Released");
+
+    labelsGroup.append("text")
+    .attr("x", 0)
+    .attr("y", 20)
+    // .attr("value", "hair_length") // value to grab for event listener
+    .classed("active", true)
+    .text("In Poverty (%)");
+
 
   // append y axis
   chartGroup.append("text")
@@ -199,7 +162,7 @@ d3.csv("assets/data/data.csv").then(function(data, err) {
     .attr("y", 0 - margin.left)
     .attr("x", 0 - (height / 2))
     .attr("dy", "1em")
-    .classed("axis-text", true)
+    .classed("active", true)
     .text("Lacks Healthcare (%)");
 
   // updateToolTip function above csv import
